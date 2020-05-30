@@ -8,8 +8,8 @@ class Trade {
     this.side = props.side;
     this.price = props.price;
     this.amount = props.amount;
-    this.buyOrderId = props.buyOrderId;
-    this.sellOrderId = props.sellOrderId;
+    // this.buyOrderId = props.buyOrderId;
+    // this.sellOrderId = props.sellOrderId;
     // attach any extra props
     for (let key in props) {
       if (!this[key]) this[key] = props[key];

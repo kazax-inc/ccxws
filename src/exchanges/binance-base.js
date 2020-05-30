@@ -308,15 +308,18 @@ class BinanceBase extends BasicClient {
   }
 
   _constructAggTrade({ data }, market) {
-    let { a: trade_id, p: price, q: size, T: time, m: buyer } = data;
+    let { a: agg_trade_id, p: price, q: size, T: time, m: buyer, f: firstTrade, l: lastTrade, s: symbol } = data;
     let unix = time;
     let amount = size;
     let side = buyer ? "buy" : "sell";
     return new Trade({
       exchange: this._name,
+      symbol,
       base: market.base,
       quote: market.quote,
-      tradeId: trade_id.toFixed(),
+      tradeId: agg_trade_id.toFixed(),
+      firstTrade, 
+      lastTrade,
       unix,
       side,
       price,
