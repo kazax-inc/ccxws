@@ -75,6 +75,18 @@ class BasicMultiClient extends EventEmitter {
     }
   }
 
+  subscribeAggTrades(market) {
+    if (!this.hasAggTrades) return;
+    this._subscribe(market, this._clients, MarketObjectTypes.aggTrade);
+  }
+
+  async unsubscribeAggTrades(market) {
+    if (!this.hasAggTrades) return;
+    if (this._clients.has(market.id)) {
+      (await this._clients.get(market.id)).unsubscribeAggTrades(market);
+    }
+  }
+
   subscribeLevel2Updates(market) {
     if (!this.hasLevel2Updates) return;
     this._subscribe(market, this._clients, MarketObjectTypes.level2update);
@@ -160,6 +172,15 @@ class BasicMultiClient extends EventEmitter {
         if (subscribed) {
           client.on("trade", (trade, market) => {
             this.emit("trade", trade, market);
+          });
+        }
+      }
+
+      if (marketObjectType === MarketObjectTypes.aggTrade) {
+        let subscribed = client.subscribeAggTrades(market);
+        if (subscribed) {
+          client.on("aggTrade", (trade, market) => {
+            this.emit("aggTrade", trade, market);
           });
         }
       }

@@ -36,7 +36,6 @@ class BinanceBase extends BasicClient {
     name,
     wssPath,
     restL2SnapshotPath,
-    useAggTrades = true,
     requestSnapshot = true,
     socketBatchSize = 200,
     socketThrottleMs = 1000,
@@ -48,10 +47,10 @@ class BinanceBase extends BasicClient {
     this._wssPath = wssPath;
     this._restL2SnapshotPath = restL2SnapshotPath;
 
-    this.useAggTrades = useAggTrades;
     this.requestSnapshot = requestSnapshot;
     this.hasTickers = true;
     this.hasTrades = true;
+    this.hasAggTrades = true;
     this.hasCandles = true;
     this.hasLevel2Snapshots = true;
     this.hasLevel2Updates = true;
@@ -128,12 +127,22 @@ class BinanceBase extends BasicClient {
   }
 
   _sendSubTrades(remote_id) {
-    const stream = remote_id.toLowerCase() + (this.useAggTrades ? "@aggTrade" : "@trade");
+    const stream = remote_id.toLowerCase() + "@trade";
     this._batchSub(stream);
   }
 
   _sendUnsubTrades(remote_id) {
-    const stream = remote_id.toLowerCase() + (this.useAggTrades ? "@aggTrade" : "@trade");
+    const stream = remote_id.toLowerCase() + "@trade";
+    this._batchUnsub(stream);
+  }
+
+  _sendSubAggTrades(remote_id) {
+    const stream = remote_id.toLowerCase() + "@aggTrade";
+    this._batchSub(stream);
+  }
+
+  _sendUnsubAggTrades(remote_id) {
+    const stream = remote_id.toLowerCase() + "@aggTrade";
     this._batchUnsub(stream);
   }
 
@@ -207,15 +216,24 @@ class BinanceBase extends BasicClient {
     }
 
     // trades
-    if (msg.stream.toLowerCase().endsWith("trade")) {
+    if (msg.data.e === "trade") {
       let remote_id = msg.data.s;
       let market = this._tradeSubs.get(remote_id);
       if (!market) return;
 
-      let trade = this.useAggTrades
-        ? this._constructAggTrade(msg, market)
-        : this._constructRawTrade(msg, market);
+      let trade = this._constructRawTrade(msg, market);
       this.emit("trade", trade, market);
+      return;
+    }
+
+    // aggregate trades
+    if (msg.data.e === "aggTrade") {
+      let remote_id = msg.data.s;
+      let market = this._aggTradeSubs.get(remote_id);
+      if (!market) return;
+
+      let trade = this._constructAggTrade(msg, market);
+      this.emit("aggTrade", trade, market);
       return;
     }
 

@@ -1,11 +1,12 @@
 const MarketObjectTypes = Object.freeze({
   ticker: 1,
   trade: 2,
-  level2snapshot: 3,
-  level2update: 4,
-  level3snapshot: 5,
-  level3update: 6,
-  candle: 7,
+  aggTrade: 3,
+  level2snapshot: 4,
+  level2update: 5,
+  level3snapshot: 6,
+  level3update: 7,
+  candle: 8,
 });
 
 const CandlePeriod = Object.freeze({

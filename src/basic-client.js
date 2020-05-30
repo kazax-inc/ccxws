@@ -17,6 +17,7 @@ class BasicTradeClient extends EventEmitter {
     this._name = name;
     this._tickerSubs = new Map();
     this._tradeSubs = new Map();
+    this._aggTradeSubs = new Map();
     this._candleSubs = new Map();
     this._level2SnapshotSubs = new Map();
     this._level2UpdateSubs = new Map();
@@ -26,6 +27,7 @@ class BasicTradeClient extends EventEmitter {
 
     this.hasTickers = false;
     this.hasTrades = true;
+    this.hasAggTrades = false;
     this.hasCandles = false;
     this.hasLevel2Snapshots = false;
     this.hasLevel2Updates = false;
@@ -82,6 +84,16 @@ class BasicTradeClient extends EventEmitter {
   unsubscribeTrades(market) {
     if (!this.hasTrades) return;
     this._unsubscribe(market, this._tradeSubs, this._sendUnsubTrades.bind(this));
+  }
+
+  subscribeAggTrades(market) {
+    if (!this.hasAggTrades) return;
+    return this._subscribe(market, this._aggTradeSubs, this._sendSubAggTrades.bind(this));
+  }
+
+  unsubscribeAggTrades(market) {
+    if (!this.hasAggTrades) return;
+    this._unsubscribe(market, this._aggTradeSubs, this._sendUnsubAggTrades.bind(this));
   }
 
   subscribeLevel2Snapshots(market) {
@@ -228,6 +240,9 @@ class BasicTradeClient extends EventEmitter {
     for (let marketSymbol of this._tradeSubs.keys()) {
       this._sendSubTrades(marketSymbol);
     }
+    for (let marketSymbol of this._aggTradeSubs.keys()) {
+      this._sendSubAggTrades(marketSymbol);
+    }
     for (let marketSymbol of this._level2SnapshotSubs.keys()) {
       this._sendSubLevel2Snapshots(marketSymbol);
     }
@@ -298,6 +313,16 @@ class BasicTradeClient extends EventEmitter {
 
   /* istanbul ignore next */
   _sendUnsubTrades() {
+    throw new Error("not implemented");
+  }
+
+  /* istanbul ignore next */
+  _sendSubAggTrades() {
+    throw new Error("not implemented");
+  }
+
+  /* istanbul ignore next */
+  _sendUnsubAggTrades() {
     throw new Error("not implemented");
   }
 
